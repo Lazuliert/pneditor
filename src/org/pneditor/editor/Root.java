@@ -113,12 +113,20 @@ public class Root implements WindowListener, ListSelectionListener, SelectionCha
     // Undo manager - per tab
     protected UndoAction undo = new UndoAction(this);
     protected RedoAction redo = new RedoAction(this);
-    private UndoManager undoManager = new UndoManager(this, undo, redo);
-
+    private UndoManager undoManager = new UndoManager(this, undo, redo); 
+    
     public UndoManager getUndoManager() {
         return undoManager;
     }
-
+    
+    protected RecordMacroAction recordMacro = new RecordMacroAction(this);
+    protected PlayMacroAction playMacro = new PlayMacroAction(this);
+    protected FastPlayMacroAction fastPlayMacro = new FastPlayMacroAction(this);
+    private MacroManager macroManager = new MacroManager(this, recordMacro, playMacro,fastPlayMacro); 
+    
+    public MacroManager getMacroManager() {
+        return macroManager;
+    }
     // Current directory - per application
     private File currentDirectory;
 
@@ -337,6 +345,7 @@ public class Root implements WindowListener, ListSelectionListener, SelectionCha
         boolean isPtoT = false;
         boolean isStaticPlaceNode = false;
         boolean isLimitedPlaceNode = false;
+        boolean macroCurrentlyPlaying = false;
         
         if (isPlaceNode) {
         	isStaticPlaceNode = ((PlaceNode) clickedElement).isStatic();
@@ -372,6 +381,9 @@ public class Root implements WindowListener, ListSelectionListener, SelectionCha
         undo.setEnabled(getUndoManager().isUndoable());
         redo.setEnabled(getUndoManager().isRedoable());
         setPlaceStatic.setEnabled(!isLimitedPlaceNode);
+        recordMacro.setEnabled(!macroCurrentlyPlaying);
+        playMacro.setEnabled(!macroCurrentlyPlaying);
+        fastPlayMacro.setEnabled(!macroCurrentlyPlaying);
     }
 
     @Override
@@ -532,6 +544,11 @@ public class Root implements WindowListener, ListSelectionListener, SelectionCha
         toolBar.addSeparator();
         toolBar.add(addSelectedTransitionsToSelectedRoles);
         toolBar.add(removeSelectedTransitionsFromSelectedRoles);
+        toolBar.addSeparator();
+        
+        toolBar.add(recordMacro);
+        toolBar.add(playMacro);
+        toolBar.add(fastPlayMacro);
 
         JMenuBar menuBar = new JMenuBar();
         mainFrame.setJMenuBar(menuBar);
