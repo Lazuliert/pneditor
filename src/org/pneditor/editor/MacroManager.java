@@ -24,6 +24,7 @@ import org.pneditor.editor.actions.PlayMacroAction;
 import org.pneditor.editor.actions.FastPlayMacroAction;
 import org.pneditor.util.Command;
 import org.pneditor.editor.UndoManager;
+import java.util.concurrent.TimeUnit;
 
 /**
  * MacroManager manages macro, and rely on UndoManager
@@ -32,8 +33,16 @@ import org.pneditor.editor.UndoManager;
  */
 public class MacroManager {
 
+
+	//the list of commands, once recording is done
     private List<Command> recordedCommands = new ArrayList<Command>();
+    // list of commands being recorded
     private List<Command> buffer = new ArrayList<Command>();
+    /*
+     * The separation of the two list allows for the saved macro to be played during
+     * recording, so the new one can be composed of the old one
+     */
+    
     private int currentCommandIndex = -1;
     private Root root;
     private RecordMacroAction recordMacroAction;
@@ -57,7 +66,59 @@ public class MacroManager {
         this.recording = false;
         this.playing = false;
     }
+    
+    public void recordCommand(Command command) {
+    	/*
+        List<Command> nonRedoedCommands = new ArrayList<Command>(buffer.subList(currentCommandIndex + 1, buffer.size()));
+        buffer.removeAll(nonRedoedCommands);
+        */
+    	//Do we want macro to be sensitive to undo/redo during recording ?
+        buffer.add(command);
+        currentCommandIndex = buffer.size() - 1;
+        //command.execute();
+        //refresh();
+        //root.setModified(true);
+    }
+    
+    public void beginRecording() {
+    	this.recording = true;
+    	eraseBuffer();
+    	refresh();	
+    }
+    
+    public void endRecording() {
+    	this.recording = false;
+    	copyBufferToRecordedCommands();
+    	refresh();
+    }
+    
+    
+    
+    public void playMacro(boolean fast) {
+    	for (Command command : recordedCommands) {
+    		command.execute();
+    		refresh();
+    		if (!fast) {
+    			try {
+    				TimeUnit.MILLISECONDS.sleep(500);
+    			}
+    			catch (InterruptedException e) {}
+    		}
+    	}
+    	
+    }
 
+    /**
+     * Erases all commands from the buffer.
+     */
+    public void eraseBuffer() {
+        buffer = new ArrayList<Command>();
+    }
+    
+    public void copyBufferToRecordedCommands() {
+    	recordedCommands = new ArrayList<Command>(buffer);
+    }
+    
     public int getRecordedCommandsNumber() {
     	return recordedCommands.size();
     }
@@ -76,6 +137,23 @@ public class MacroManager {
     
     public void setRecording(boolean set) {
     	recording  = set;
+    }
+    
+    private void refresh() {
+        root.refreshAll();
+        /*
+        if (isUndoable()) {
+         
+            undoAction.putValue(AbstractAction.SHORT_DESCRIPTION, "Undo: " + executedCommands.get(currentCommandIndex).toString());
+        } else {
+            undoAction.putValue(AbstractAction.SHORT_DESCRIPTION, "Undo");
+        }
+        if (isRedoable()) {
+            redoAction.putValue(AbstractAction.SHORT_DESCRIPTION, "Redo: " + executedCommands.get(currentCommandIndex + 1).toString());
+        } else {
+            redoAction.putValue(AbstractAction.SHORT_DESCRIPTION, "Redo");
+        }
+        */
     }
 
 }

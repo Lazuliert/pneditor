@@ -51,14 +51,14 @@ public class RecordMacroAction extends AbstractAction {
     public void actionPerformed(ActionEvent e) { //TODO: use getSelectedElementsWithClickedElement()
     	if(!root.getMacroManager().getPlaying()) {
     		if(root.getMacroManager().getRecording()) {
-    			root.getMacroManager().setRecording(false);
+    			root.getMacroManager().endRecording();
     	        putValue(SMALL_ICON, GraphicsTools.getIcon("pneditor/macroRecord.gif"));
     	        String name = "Record macro";
     	        putValue(NAME, name);
     	        putValue(SHORT_DESCRIPTION, name);
 
     		}else {
-    			root.getMacroManager().setRecording(true);
+    			root.getMacroManager().beginRecording();
     	        putValue(SMALL_ICON, GraphicsTools.getIcon("pneditor/macroStop.gif"));
     	        String name = "Stop macro recording";
     	        putValue(NAME, name);

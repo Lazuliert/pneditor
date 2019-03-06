@@ -346,6 +346,7 @@ public class Root implements WindowListener, ListSelectionListener, SelectionCha
         boolean isStaticPlaceNode = false;
         boolean isLimitedPlaceNode = false;
         boolean macroCurrentlyPlaying = false;
+        boolean macroExists = (getMacroManager().getRecordedCommandsNumber()!=0 );
         
         if (isPlaceNode) {
         	isStaticPlaceNode = ((PlaceNode) clickedElement).isStatic();
@@ -382,8 +383,8 @@ public class Root implements WindowListener, ListSelectionListener, SelectionCha
         redo.setEnabled(getUndoManager().isRedoable());
         setPlaceStatic.setEnabled(!isLimitedPlaceNode);
         recordMacro.setEnabled(!macroCurrentlyPlaying);
-        playMacro.setEnabled(!macroCurrentlyPlaying);
-        fastPlayMacro.setEnabled(!macroCurrentlyPlaying);
+        playMacro.setEnabled(macroExists);
+        fastPlayMacro.setEnabled(macroExists);
     }
 
     @Override

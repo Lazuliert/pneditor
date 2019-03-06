@@ -49,7 +49,7 @@ public class PlayMacroAction extends AbstractAction {
     }
 
     public void actionPerformed(ActionEvent e) { //TODO: use getSelectedElementsWithClickedElement()
-    	
+    	root.getMacroManager().playMacro(false);
 
     }
 }
