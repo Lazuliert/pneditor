@@ -61,9 +61,9 @@ public class BoundednessAction extends AbstractAction {
         }
 
         if (isUnboundedness) {
-            JOptionPane.showMessageDialog(root.getParentFrame(), "PetriNet is NOT bounded ", "Algorithm output", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(root.getParentFrame(), "PetriNet is NOT bounded \n(This ignore token limits)", "Algorithm output", JOptionPane.INFORMATION_MESSAGE);
         } else {
-            JOptionPane.showMessageDialog(root.getParentFrame(), "PetriNet is bounded", "Algorithm output", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(root.getParentFrame(), "PetriNet is bounded \n(This ignore token limits)", "Algorithm output", JOptionPane.INFORMATION_MESSAGE);
         }
     }
 
@@ -123,15 +123,9 @@ public class BoundednessAction extends AbstractAction {
             if (!(newTokens >= oldTokens)) {
                 return false;
             } else if (newTokens > oldTokens) {
-            	if (newMarkingPlace.getTokenLimit()==0) {
-            		// If a place has a token limit, it means that this specific place
-            		// is assured to be bounded ; thus, even if the tokens can raise
-            		// inquantity here, it has to stop.
-            		isOneSharplyHigher = true;
-            	}
+            	isOneSharplyHigher = true;
             }
-
-        }
+    	}
 
         if (isOneSharplyHigher) {
             return true;
