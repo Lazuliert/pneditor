@@ -119,6 +119,15 @@ public class Root implements WindowListener, ListSelectionListener, SelectionCha
         return undoManager;
     }
 
+    // Macro manager - per tab
+    protected RecordMacroAction recordMacro = new RecordMacroAction(this);
+    protected PlayMacroAction playMacro = new PlayMacroAction(this);
+    private MacroManager macroManager = new MacroManager(this, playMacro); 
+    
+    public MacroManager getMacroManager() {
+        return macroManager;
+    }
+    
     // Current directory - per application
     private File currentDirectory;
 
@@ -310,6 +319,7 @@ public class Root implements WindowListener, ListSelectionListener, SelectionCha
         canvas.repaint();
         enableOnlyPossibleActions();
         getRoleEditor().refreshSelected();
+        getMacroManager().refreshPlayIcon();
     }
 
     public void repaintCanvas() {
@@ -317,6 +327,9 @@ public class Root implements WindowListener, ListSelectionListener, SelectionCha
     }
 
     private void enableOnlyPossibleActions() {
+    	
+    	
+    	
         boolean isDeletable = clickedElement != null
                 && !(clickedElement instanceof ReferencePlace)
                 || !selection.isEmpty()
@@ -335,6 +348,10 @@ public class Root implements WindowListener, ListSelectionListener, SelectionCha
         boolean roleSelected = !roleEditor.getSelectedElements().isEmpty();
         boolean isParent = !document.petriNet.isCurrentSubnetRoot();
         boolean isPtoT = false;
+        boolean macroCurrentlyRecording = getMacroManager().getRecording();
+        boolean macroExists = (getMacroManager().getRecordedCommandsNumber()!=0 );
+        
+        
         boolean isStaticPlaceNode = false;
         boolean isLimitedPlaceNode = false;
         
@@ -350,7 +367,6 @@ public class Root implements WindowListener, ListSelectionListener, SelectionCha
             test = (Arc) clickedElement;
             isPtoT = test.isPlaceToTransition();
         }
-
         cutAction.setEnabled(isCutable);
         copyAction.setEnabled(isCopyable);
         pasteAction.setEnabled(isPastable);
@@ -372,6 +388,8 @@ public class Root implements WindowListener, ListSelectionListener, SelectionCha
         undo.setEnabled(getUndoManager().isUndoable());
         redo.setEnabled(getUndoManager().isRedoable());
         setPlaceStatic.setEnabled(!isLimitedPlaceNode);
+        
+        playMacro.setEnabled(macroExists&(!macroCurrentlyRecording));
     }
 
     @Override
@@ -532,7 +550,11 @@ public class Root implements WindowListener, ListSelectionListener, SelectionCha
         toolBar.addSeparator();
         toolBar.add(addSelectedTransitionsToSelectedRoles);
         toolBar.add(removeSelectedTransitionsFromSelectedRoles);
-
+        toolBar.addSeparator();
+        
+        toolBar.add(recordMacro);
+        toolBar.add(playMacro);
+        
         JMenuBar menuBar = new JMenuBar();
         mainFrame.setJMenuBar(menuBar);
 
